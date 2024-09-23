@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository {
-    Item create(Item item);
+    long generateId();
+    ItemDto create(Item item);
 
     Optional<Item> getById(long itemId);
 
-    Item update(long itemId, Item item);
+    ItemDto update(long itemId, Item item);
 
     List<ItemDto> allItemsFromUser(long userId);
 

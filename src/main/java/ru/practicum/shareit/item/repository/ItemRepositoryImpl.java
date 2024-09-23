@@ -12,8 +12,13 @@ public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     private final Map<Long, List<Item>> itemsByUser = new HashMap<>();
 
+    private long id = 0;
+
+    public long generateId() {
+        return ++id;
+    }
     @Override
-    public Item create(Item item) {
+    public ItemDto create(Item item) {
         items.put(item.getId(), item);
         itemsByUser.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>()).add(item);
         return item;
@@ -25,7 +30,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item update(long itemId, Item item) {
+    public ItemDto update(long itemId, Item item) {
         items.put(itemId, item);
         return item;
     }

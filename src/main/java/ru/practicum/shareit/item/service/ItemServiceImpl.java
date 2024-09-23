@@ -19,22 +19,21 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final ItemRepository itemRepository;
-    private long id = 0;
 
     @Override
-    public Item create(ItemDto itemDto, long userId) {
+    public ItemDto create(ItemDto itemDto, long userId) {
         User user = userService.getById(userId);
 
         Item item = ItemMapper.dtoToItem(itemDto);
-        item.setId(generateId());
+        item.setId(itemRepository.generateId());
         item.setOwner(user);
 
         itemRepository.create(item);
-        return item;
+        return ItemMapper.itemToDto(item);
     }
 
     @Override
-    public Item update(long itemId, UpdateItemDto itemDto, long userId) {
+    public ItemDto update(long itemId, UpdateItemDto itemDto, long userId) {
         Item item = itemRepository.getById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException("Item with id " + itemId + " not found"));
         if (item.getOwner().getId() != userId) {
@@ -57,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getById(long itemId) {
+    public ItemDto getById(long itemId) {
         return itemRepository.getById(itemId)
                 .orElseThrow(() -> new ItemNotFoundException("Item with id " + itemId + " not found"));
     }
@@ -73,7 +72,4 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.search(text);
     }
 
-    private long generateId() {
-        return ++id;
-    }
 }

@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
@@ -21,28 +19,28 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public Item create(@RequestBody @Valid ItemDto itemDto,
-                       @RequestHeader(X_SHARER_USER_ID) long userId) {
+    public ItemDto create(@RequestBody @Valid ItemDto itemDto,
+                          @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("ItemController: create is called");
-        Item item = itemService.create(itemDto, userId);
+        ItemDto createdItemDto = itemService.create(itemDto, userId);
         log.info("ItemController: item created successfully");
-        return item;
+        return createdItemDto;
     }
 
     @PatchMapping("{itemId}")
-    public Item update(@PathVariable long itemId,
-                       @RequestBody UpdateItemDto itemDto,
-                       @RequestHeader(X_SHARER_USER_ID) long userId) {
+    public ItemDto update(@PathVariable long itemId,
+                          @RequestBody UpdateItemDto itemDto,
+                          @RequestHeader(X_SHARER_USER_ID) long userId) {
         log.info("ItemController: update is called");
-        Item item = itemService.update(itemId, itemDto, userId);
+        ItemDto updatedItemDto = itemService.update(itemId, itemDto, userId);
         log.info("ItemController: item updated successfully");
-        return item;
+        return updatedItemDto;
     }
 
     @GetMapping("{itemId}")
     public ItemDto getById(@PathVariable long itemId) {
         log.info("ItemController: getById is called");
-        ItemDto itemDto = ItemMapper.itemToDto(itemService.getById(itemId));
+        ItemDto itemDto = itemService.getById(itemId);
         log.info("ItemController: item received successfully");
         return itemDto;
     }
