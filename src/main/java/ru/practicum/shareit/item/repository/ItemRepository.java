@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface ItemRepository {
     long generateId();
+
     ItemDto create(Item item);
 
     Optional<Item> getById(long itemId);
