@@ -16,4 +16,6 @@ public interface UserRepository {
     void deleteById(long userId, User user);
 
     Set<String> getEmails();
+
+    long generateId();
 }

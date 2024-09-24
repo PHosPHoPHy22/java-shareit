@@ -10,6 +10,12 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private final Set<String> emails = new HashSet<>();
 
+    private long id = 0;
+
+    public long generateId() {
+        return ++id;
+    }
+
     @Override
     public User create(User user) {
         users.put(user.getId(), user);

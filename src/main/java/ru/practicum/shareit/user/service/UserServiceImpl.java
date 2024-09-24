@@ -14,13 +14,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private long id = 0;
 
     @Override
     public User create(User user) {
         if (isEmailExist(user.getEmail()))
             throw new EmailAlreadyExistException("Email: " + user.getEmail() + " already exist");
-        user.setId(generateId());
+        user.setId(userRepository.generateId());
         return userRepository.create(user);
     }
 
@@ -70,7 +69,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.getEmails().contains(email);
     }
 
-    private long generateId() {
-        return ++id;
-    }
 }
