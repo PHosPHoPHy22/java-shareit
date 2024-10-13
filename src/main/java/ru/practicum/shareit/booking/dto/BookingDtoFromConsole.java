@@ -7,9 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Data
 @Slf4j
 public class BookingDtoFromConsole {
