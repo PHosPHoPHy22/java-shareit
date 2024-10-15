@@ -1,12 +1,16 @@
 package ru.practicum.shareit.user.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import ru.practicum.shareit.validation.Marker;
 
 @Data
 public class UserDto {
-    private long id;
-    private String name;
+    Long id;
+    @NotNull(groups = Marker.AddUser.class)
+    String name;
+    @NotNull(groups = Marker.AddUser.class)
     @Email
-    private String email;
+    String email;
 }
