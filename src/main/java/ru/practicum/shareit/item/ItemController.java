@@ -2,62 +2,82 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.validation.Marker;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDetailsDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.service.UserService;
 
+import java.util.Collection;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
-@Validated
 @RequiredArgsConstructor
+@Slf4j
 public class ItemController {
+
+    private final ItemMapper itemMapper;
     private final ItemService itemService;
-
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Validated(Marker.AddItem.class)
-    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Valid ItemDto itemDto) {
-        return itemService.addItemJpa(userId, itemDto);
-    }
-
-    @PatchMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
-    @Validated(Marker.UpdateItem.class)
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Valid ItemDto itemDto, @PathVariable("itemId") long itemId) {
-        return itemService.updateItemJpa(userId, itemDto, itemId);
-    }
+    private final UserService userService;
 
     @GetMapping("/{itemId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ItemDtoWithCommentAndDate getItemById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable("itemId") long itemId) {
-        return itemService.getItemByIdJpa(userId, itemId);
-    }
-
-    @PostMapping("/{itemId}/comment")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommentDtoInConsole addComment(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable("itemId") long itemId, @RequestBody @Valid CommentDtoFromConsole commentDtoFromConsole) {
-        commentDtoFromConsole.setItemId(itemId);
-        commentDtoFromConsole.setUserId(userId);
-        return itemService.addComment(commentDtoFromConsole);
+    public ItemDetailsDto getItem(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Received GET at /items/{}", itemId);
+        ItemDetailsDto itemDetailsDto = itemService.getItemDetails(itemId, userId);
+        log.info("Responded to GET /items/{}: {}", itemId, itemDetailsDto);
+        return itemDetailsDto;
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<ItemDtoWithCommentAndDate> getItemsFromUsers(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getItemsFromUsersJpa(userId);
+    public Collection<ItemDto> getItemsByUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Received GET at /items?X-Sharer-User-Id={}", userId);
+        List<ItemDto> items = itemMapper.toItemDtoList(itemService.getItemsByUser(userService.getUser(userId)));
+        log.info("Responded to GET /items?X-Sharer-User-Id={}: {}", userId, items);
+        return items;
     }
 
     @GetMapping("/search")
-    @ResponseStatus(HttpStatus.OK)
-    public List<ItemDto> search(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam(name = "text") String text) {
-        return itemService.searchJpa(text, userId);
+    public Collection<ItemDto> searchItems(@RequestParam("text") String text,
+                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Received GET at /items/search?text={}", text);
+        List<ItemDto> items = itemMapper.toItemDtoList(itemService.searchItems(text));
+        log.info("Responded to GET /items/search?text={}: {}", text, items);
+        return items;
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Long userId, @Validated @RequestBody ItemDto newItemDto) {
+        log.info("Received POST at /items");
+        log.info("Available value: {}", newItemDto.getAvailable());
+        final Item item = itemMapper.toItem(newItemDto);
+        item.setOwner(userService.getUser(userId));
+        log.info("Responded to POST /items: {}", newItemDto);
+        final ItemDto itemDto = itemMapper.toItemDto(itemService.createItem(userId, item));
+        final Item savedItem = itemService.createItem(userId, item);
+        log.info("Saved item: {}", savedItem);
+        log.info("Created item DTO: {}", itemDto);
+        return itemDto;
+    }
+
+    @PatchMapping("/{itemId}")
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody ItemDto itemDto,
+                              @PathVariable Long itemId) {
+        log.info("Received PATCH at /items/{}: {}", userId, itemDto);
+        return itemMapper.toItemDto(itemService.updateItem(userService.getUser(userId), itemMapper.toItem(itemDto),
+                itemId));
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@PathVariable Long itemId,
+                                 @RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @RequestBody @Valid CommentDto commentDto) {
+        return itemService.addComment(itemId, userId, commentDto.getText());
     }
 }

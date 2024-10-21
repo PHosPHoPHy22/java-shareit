@@ -1,37 +1,36 @@
 package ru.practicum.shareit.item.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-/**
- * TODO Sprint add-controllers.
- */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
 @Entity
+@ToString
 @Table(name = "items")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
     private Long id;
-    @Column(name = "item_name")
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+    @NotBlank
+    @Column(name = "name", nullable = false)
     private String name;
-    @Column(name = "item_description")
+    @NotNull
+    @Size(max = 200)
+    @Column(name = "description", nullable = false)
     private String description;
-    @Column(name = "item_available")
+    @Column(name = "is_available", nullable = false)
     private Boolean available;
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User owner;
-    @OneToOne
     @JoinColumn(name = "request_id")
     private ItemRequest request;
 }
