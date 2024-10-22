@@ -120,7 +120,6 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
-    @Transactional
     @Override
     public List<Booking> getBookingsByOwner(Long ownerId, BookingState state) {
         if (ownerId == null) {
@@ -155,7 +154,7 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
-    @Transactional
+
     @Override
     public List<Booking> getBookingsByUser(Long userId, Long bookingId, BookingState state) {
         return null;
@@ -191,7 +190,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
-    @Transactional
+
     @Override
     public Optional<Booking> getBookingsByBookingId(Long bookingId, BookingState state) {
         //Sort sort = Sort.by(Sort.Direction.DESC, "start");  (TO DO сортировка по дате на 16 спринт)
