@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
 
+    @Transactional
     @Override
     public Item createItem(Long userId, Item item) {
         if (userId == null || item == null) {
@@ -57,6 +59,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.save(item);
     }
 
+    @Transactional
     @Override
     public Item updateItem(User user, Item updatedItem, Long itemId) {
         Long ownerId = userService.getUser(user.getId()).getId();
@@ -153,6 +156,7 @@ public class ItemServiceImpl implements ItemService {
         return itemDetailsDto;
     }
 
+    @Transactional
     @Override
     public CommentDto addComment(Long itemId, Long userId, String text) {
         Item item = itemRepository.findById(itemId)

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final BookingMapper mapper;
 
+    @Transactional
     @Override
     public Booking createBooking(Long bookerId, BookingDto bookingDto) {
         if (bookerId == null || bookingDto == null) {
@@ -73,11 +75,13 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException("Booking not found"));
     }
 
+    @Transactional
     @Override
     public void deleteBooking(Long bookingId) {
         bookingRepository.deleteById(bookingId);
     }
 
+    @Transactional
     @Override
     public Booking updateBooking(Booking booking, Long bookingId) {
         Booking existingBooking = bookingRepository.findById(bookingId)
@@ -104,6 +108,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(existingBooking);
     }
 
+
     @Override
     public List<Booking> getBookingsByBooker(Long userId, BookingState state) {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
@@ -115,6 +120,7 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
+    @Transactional
     @Override
     public List<Booking> getBookingsByOwner(Long ownerId, BookingState state) {
         if (ownerId == null) {
@@ -149,6 +155,7 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
+    @Transactional
     @Override
     public List<Booking> getBookingsByUser(Long userId, Long bookingId, BookingState state) {
         return null;
@@ -165,6 +172,7 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
+    @Transactional
     @Override
     public Booking approveBooking(Long bookingId, Long ownerId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(()
@@ -183,6 +191,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
+    @Transactional
     @Override
     public Optional<Booking> getBookingsByBookingId(Long bookingId, BookingState state) {
         //Sort sort = Sort.by(Sort.Direction.DESC, "start");  (TO DO сортировка по дате на 16 спринт)
