@@ -15,6 +15,5 @@ public class BookingDto {
     private Long bookerId;
     private Status status = Status.WAITING;
 
-    public BookingDto() {
-    }
+
 }
