@@ -1,4 +1,4 @@
-package java.ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item.dto;
 
 
 import jakarta.validation.constraints.NotNull;

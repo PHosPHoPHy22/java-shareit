@@ -1,4 +1,4 @@
-package java.ru.practicum.shareit.item;
+package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.ru.practicum.shareit.item.dto.CommentRequestDto;
-import java.ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 @Controller
 @RequestMapping(path = "/items")

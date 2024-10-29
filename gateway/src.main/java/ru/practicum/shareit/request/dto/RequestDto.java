@@ -1,4 +1,4 @@
-package java.ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.request.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

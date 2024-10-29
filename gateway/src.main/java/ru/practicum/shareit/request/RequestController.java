@@ -1,4 +1,4 @@
-package java.ru.practicum.shareit.request;
+package ru.practicum.shareit.request;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.RequestDto;
 
 @Controller
 @RequestMapping(path = "/requests")

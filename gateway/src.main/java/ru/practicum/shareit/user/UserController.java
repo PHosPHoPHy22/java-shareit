@@ -1,4 +1,4 @@
-package java.ru.practicum.shareit.user;
+package ru.practicum.shareit.user;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

@@ -1,4 +1,4 @@
-package java.ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,8 +10,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import java.ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.booking.dto.BookItemRequestDto;
+import ru.practicum.shareit.booking.dto.BookingState;
 
 
 @Controller
