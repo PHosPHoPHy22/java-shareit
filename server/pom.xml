@@ -80,7 +80,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.practicum.server.ShareItApplication</mainClass>
+                    <mainClass>ru.practicum.server.ShareItApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
