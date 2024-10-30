@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class CommentDtoFromConsole {
     @NotEmpty
-    String text;
-    long userId;
-    long itemId;
+    private String text;
+    private long userId;
+    private long itemId;
 }

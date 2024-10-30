@@ -7,10 +7,10 @@ import ru.practicum.shareit.validation.Marker;
 
 @Data
 public class UserDto {
-    Long id;
+    private Long id;
     @NotNull(groups = Marker.AddUser.class)
-    String name;
+    private String name;
     @NotNull(groups = Marker.AddUser.class)
     @Email
-    String email;
+    private String email;
 }

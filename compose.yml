@@ -5,10 +5,8 @@ services:
     container_name: shareit-gateway
     ports:
       - "8080:8080"
-    depends_on:
-      - server
     environment:
-      - SHAREIT_SERVER_URL=http://server:9090
+      - SHAREIT_SERVER_URL=http://shareit-server:9090
 
   server:
     build: server
