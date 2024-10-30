@@ -1,39 +1,44 @@
 package ru.practicum.shareit.request;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.dto.ItemRequestDtoFromConsole;
+import ru.practicum.shareit.request.dto.ItemRequestDtoInConsoleCreated;
+import ru.practicum.shareit.request.dto.ItemRequestDtoInConsoleWithItems;
 
 import java.util.List;
 
-
-
+/**
+ * TODO Sprint add-item-requests.
+ */
 @RestController
-@AllArgsConstructor
 @RequestMapping(path = "/requests")
+@RequiredArgsConstructor
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping
-    public ItemRequest addRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                  @RequestBody String itemDescription) {
-        return itemRequestService.addRequest(userId, itemDescription);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ItemRequestDtoInConsoleCreated addItemRequestJpa(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody ItemRequestDtoFromConsole itemRequestDtoFromConsole) {
+        return itemRequestService.addItemRequestJpa(itemRequestDtoFromConsole, userId);
     }
 
     @GetMapping
-    public List<ItemRequestDto> getRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemRequestService.getRequests(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public List<ItemRequestDtoInConsoleWithItems> getItemRequestsUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemRequestService.getItemRequestsUserId(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> getRequestsAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemRequestService.getRequestsAll(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public List<ItemRequestDtoInConsoleCreated> getItemRequestsAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemRequestService.getItemRequestsAll(userId);
     }
 
-    @GetMapping("{requestId}")
-    public ItemRequestDto getRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @PathVariable Long requestId) {
-        return itemRequestService.getRequestsById(userId, requestId);
+    @GetMapping("/{requestId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ItemRequestDtoInConsoleWithItems getItemRequestId(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable("requestId") long requestId) {
+        return itemRequestService.getItemRequestId(requestId);
     }
 }

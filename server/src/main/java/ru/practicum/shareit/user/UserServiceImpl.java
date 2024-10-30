@@ -1,53 +1,57 @@
 package ru.practicum.shareit.user;
 
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.ConflictExceptions;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mappers.UserMapperMapStruct;
 import ru.practicum.shareit.user.model.User;
-import java.util.Collection;
 
-@AllArgsConstructor
+@Data
+@RequiredArgsConstructor
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
-
-    private final UserRepository userRepository;
+    private final UserMapperMapStruct userMapperMapStruct;
+    private final UserRepositoryJpa userRepositoryJpa;
 
     @Override
-    public Collection<User> getUsers() {
-        return null;//inMemoryUserStorage.getUsers();
-    }
-
-    @Transactional
-    @Override
-    public User addUser(User user) {
-        return userRepository.save(user);
-    }
-
-    @Transactional
-    @Override
-    public User updateUser(User user, Long userId) {
-        User updatedUser = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        updatedUser.setId(userId);
-        if (user.getEmail() != null) {
-            updatedUser.setEmail(user.getEmail());
+    public UserDto updateUserJpa(long userId, UserDto userDto) {
+        User userFromBase = userRepositoryJpa.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с " + userId + " не найден"));
+        if (userRepositoryJpa.findByEmailContainingIgnoreCase(userDto.getEmail()) != null) {
+            throw new ConflictExceptions("Пользователь с email " + userDto.getEmail() + " существует");
         }
-        if (user.getName() != null) {
-            updatedUser.setName(user.getName());
+        User userInBase = userMapperMapStruct.fromUserDto(userDto);
+        if (userInBase.getName() != null) {
+            userFromBase.setName(userInBase.getName());
         }
-        return userRepository.save(updatedUser);
+        if (userInBase.getEmail() != null) {
+            userFromBase.setEmail(userInBase.getEmail());
+        }
+        return userMapperMapStruct.toUserDto(userRepositoryJpa.save(userFromBase));
     }
 
     @Override
-    public User getUser(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+    public UserDto getUserDtoByIdJpa(long userId) {
+        return userMapperMapStruct.toUserDto(userRepositoryJpa.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с " + userId + " не найден")));
     }
 
-    @Transactional
+
     @Override
-    public User deleteUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        userRepository.delete(user);
-        return user;
+    public void deleteUserByIdJpa(long userId) {
+        getUserDtoByIdJpa(userId);
+        userRepositoryJpa.deleteById(userId);
+    }
+
+
+    @Override
+    public UserDto addUserJpa(UserDto userDto) {
+        User user = userMapperMapStruct.fromUserDto(userDto);
+        Long id = userRepositoryJpa.save(user).getId();
+        user.setId(id);
+        return userMapperMapStruct.toUserDto(user);
     }
 }

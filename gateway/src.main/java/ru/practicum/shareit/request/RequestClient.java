@@ -7,10 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.request.dto.RequestDto;
-
+import ru.practicum.shareit.request.dto.ItemRequestDtoFromConsole;
 
 @Service
 public class RequestClient extends BaseClient {
@@ -26,15 +24,19 @@ public class RequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createRequest(Long userId, RequestDto requestDto) {
-        return post("", userId, requestDto);
+    public ResponseEntity<Object> addItemRequestJpa(ItemRequestDtoFromConsole itemRequestDtoFromConsole, Long userId) {
+        return post("", userId, itemRequestDtoFromConsole);
     }
 
-    public ResponseEntity<Object> getRequests(long userId) {
-        return get("",userId);
+    public ResponseEntity<Object> getItemRequestsUserId(Long userId) {
+        return get(userId);
     }
 
-    public ResponseEntity<Object> getRequestById(Long userId, Long requestId) {
+    public ResponseEntity<Object> getItemRequestsAll(Long userId) {
+        return get("/all", userId);
+    }
+
+    public ResponseEntity<Object> getItemRequestId(Long requestId, Long userId) {
         return get("/" + requestId, userId);
     }
 }

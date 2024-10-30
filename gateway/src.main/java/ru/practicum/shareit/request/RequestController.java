@@ -1,36 +1,39 @@
 package ru.practicum.shareit.request;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestDtoFromConsole;
 
-@Controller
+@RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
-@Slf4j
-@Validated
 public class RequestController {
     private final RequestClient requestClient;
 
     @PostMapping
-    public ResponseEntity<Object> createRequest(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
-                                                @RequestBody @Valid RequestDto requestDto) {
-        return requestClient.createRequest(userId,requestDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Object> addItemRequestJpa(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody @Valid ItemRequestDtoFromConsole itemRequestDtoFromConsole) {
+        return requestClient.addItemRequestJpa(itemRequestDtoFromConsole, userId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getRequests(@Positive @RequestHeader("X-Sharer-User-Id") long userId) {
-        return requestClient.getRequests(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> getItemRequestsUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return requestClient.getItemRequestsUserId(userId);
     }
 
-    @GetMapping("{requestId}")
-    public ResponseEntity<Object> getRequestById(@Positive @RequestHeader("X-Sharer-User-Id") long userId, @PathVariable Long requestId) {
-        return requestClient.getRequestById(userId,requestId);
+    @GetMapping("/all")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> getItemRequestsAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return requestClient.getItemRequestsAll(userId);
+    }
+
+    @GetMapping("/{requestId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> getItemRequestId(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable("requestId") long requestId) {
+        return requestClient.getItemRequestId(requestId, userId);
     }
 }

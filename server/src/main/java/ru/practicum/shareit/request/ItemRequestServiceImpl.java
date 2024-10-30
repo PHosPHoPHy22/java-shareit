@@ -1,75 +1,76 @@
 package ru.practicum.shareit.request;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.InternalServerException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.ItemRepositoryJpa;
+import ru.practicum.shareit.item.dto.ItemDtoForItemRequest;
+import ru.practicum.shareit.item.mappers.ItemMapperMapStruct;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDtoFromConsole;
+import ru.practicum.shareit.request.dto.ItemRequestDtoInConsoleCreated;
+import ru.practicum.shareit.request.dto.ItemRequestDtoInConsoleWithItems;
+import ru.practicum.shareit.request.mappers.ItemRequestMapperMapStruct;
+import ru.practicum.shareit.user.UserRepositoryJpa;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
+    private final ItemRequestRepositoryJpa itemRequestRepositoryJpa;
+    private final ItemRequestMapperMapStruct itemRequestMapperMapStruct;
+    private final UserRepositoryJpa userRepositoryJpa;
+    private final ItemRepositoryJpa itemRepositoryJpa;
+    private final ItemMapperMapStruct itemMapperMapStruct;
 
-    private final UserRepository userRepository;
-    private final ItemRequestRepository itemRequestRepository;
-    private final ObjectMapper objectMapper;
-    private final ItemRepository itemRepository;
+    @Override
+    public ItemRequestDtoInConsoleCreated addItemRequestJpa(ItemRequestDtoFromConsole itemRequestDtoFromConsole, long userId) {
+        User user = userRepositoryJpa.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с " + userId + " не найден"));
+        ItemRequest itemRequest = itemRequestMapperMapStruct.inItemRequest(itemRequestDtoFromConsole, user);
+        Long id = itemRequestRepositoryJpa.save(itemRequest).getId();
+        itemRequest.setId(id);
+        return itemRequestMapperMapStruct.inItemRequestDtoInConsole(itemRequest);
+    }
 
-    @Transactional
-    public ItemRequest addRequest(Long userId, String itemDescription) {
-        Map<String,String> map;
-        try {
-            map = objectMapper.readValue(itemDescription, Map.class);
-        } catch (JsonProcessingException e) {
-            throw new InternalServerException("Ошибка парсинга Json" + e.getMessage());
+    @Override
+    public List<ItemRequestDtoInConsoleWithItems> getItemRequestsUserId(long userId) {
+        List<Item> items = itemRepositoryJpa.getItemRequestsUserId(userId);
+        List<ItemRequest> itemRequests = itemRequestRepositoryJpa.findByRequestorId(userId);
+        Map<ItemRequest, List<Item>> itemRequestListMap = new HashMap<>();
+        for (ItemRequest itemRequest : itemRequests) {
+            itemRequestListMap.put(itemRequest, new ArrayList<>());
         }
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return itemRequestRepository.save(ItemRequestMapper.toItemRequest(map.get("description"), user));
-    }
-
-
-    public List<ItemRequestDto> getRequests(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return itemRequestRepository.findAllByRequesterId(userId)
-                .stream()
-                .map(itemRequest -> {
-                    List<Item> itemList = itemRepository.findAllByRequestId(itemRequest.getId());
-                    return ItemRequestMapper.toItemRequestDto(itemRequest,itemList);
-                })
-                .toList();
+        for (Item item : items) {
+            itemRequestListMap.get(item.getRequest()).add(item);
+        }
+        return itemRequestListMap.entrySet().stream().map(a -> {
+            ItemRequestDtoInConsoleWithItems x = itemRequestMapperMapStruct.inItemRequestDtoInConsoleWithItems(a.getKey());
+            List<ItemDtoForItemRequest> y = a.getValue().stream().map(itemMapperMapStruct::inItemDtoForItemRequest).toList();
+            x.setItems(y);
+            return x;
+        }).sorted(((o1, o2) -> o2.getCreated().compareTo(o1.getCreated()))).collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemRequestDto> getRequestsAll(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return itemRequestRepository.findALLWhereItemNotFound(userId)
-                .stream()
-                .sorted()
-                .map(itemRequest -> ItemRequestMapper.toItemRequestDto(itemRequest,null))
-                .toList();
+    public List<ItemRequestDtoInConsoleCreated> getItemRequestsAll(long userId) {
+        return itemRequestRepositoryJpa.getItemRequestsAll(userId).stream()
+                .sorted((o1, o2) -> o2.getCreated().compareTo(o1.getCreated()))
+                .map(itemRequestMapperMapStruct::inItemRequestDtoInConsole).toList();
     }
 
     @Override
-    public ItemRequestDto getRequestsById(Long userId, Long requestId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return itemRequestRepository
-                .findById(requestId)
-                .map(itemRequest -> {
-                    List<Item> itemList = itemRepository.findAllByRequestId(itemRequest.getId());
-                    return ItemRequestMapper.toItemRequestDto(itemRequest,itemList);
-                })
-                .orElse(null);
+    public ItemRequestDtoInConsoleWithItems getItemRequestId(long requestId) {
+        ItemRequest itemRequest = itemRequestRepositoryJpa.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос с " + requestId + " не найден"));
+        List<Item> items = itemRepositoryJpa.getItemRequestsId(requestId);
+        ItemRequestDtoInConsoleWithItems itemRequestDtoInConsoleWithItems = itemRequestMapperMapStruct.inItemRequestDtoInConsoleWithItems(itemRequest);
+        List<ItemDtoForItemRequest> itemDtoForItemRequests = items.stream().map(itemMapperMapStruct::inItemDtoForItemRequest).toList();
+        itemRequestDtoInConsoleWithItems.setItems(itemDtoForItemRequests);
+        return itemRequestDtoInConsoleWithItems;
     }
 }

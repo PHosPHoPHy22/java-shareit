@@ -3,7 +3,7 @@ package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoFromConsole;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -52,9 +52,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto postComment(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                  @PathVariable("itemId") Long itemId,
-                                  @RequestBody CommentDto commentDto) {
+    public CommentDtoFromConsole postComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                             @PathVariable("itemId") Long itemId,
+                                             @RequestBody CommentDtoFromConsole commentDto) {
         return itemService.postComment(userId, itemId, commentDto);
     }
 

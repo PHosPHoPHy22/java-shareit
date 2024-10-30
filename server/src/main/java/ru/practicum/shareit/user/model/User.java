@@ -1,17 +1,25 @@
 package ru.practicum.shareit.user.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
+/**
+ * TODO Sprint add-controllers.
+ */
+@Entity
+@Table(name = "users")
 @Data
-@Entity(name = "users")
+@RequiredArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private String email;
+    @Column(name = "user_id")
+    Long id;
+    @Column(name = "user_name")
+    String name;
+    @Column(name = "user_email", unique = true)
+    String email;
 }

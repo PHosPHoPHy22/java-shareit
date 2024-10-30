@@ -7,10 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.CommentDtoFromConsole;
+import ru.practicum.shareit.item.dto.ItemDto;
+
+import java.util.Map;
 
 
 @Service
@@ -27,15 +28,34 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createItem(Long userId, ItemRequestDto requestDto) {
-        return post("", userId, requestDto);
+    public ResponseEntity<Object> addItemJpa(Long userId, ItemDto itemDto) {
+        return post("", userId, itemDto);
     }
 
-    public ResponseEntity<Object> postComment(Long userId, Long itemId, CommentRequestDto requestDto) {
-        return post("/" + itemId + "/comment",userId,requestDto);
+    public ResponseEntity<Object> updateItemJpa(Long userId, ItemDto itemDto, Long itemId) {
+        return patch("/" + itemId, userId, itemDto);
     }
 
-    public ResponseEntity<Object> getItem(Long userId, Long itemId) {
+    public ResponseEntity<Object> getItemByIdJpa(Long userId, Long itemId) {
         return get("/" + itemId, userId);
+    }
+
+    public ResponseEntity<Object> addComment(Long userId, Long itemId, CommentDtoFromConsole commentDtoFromConsole) {
+        return post("/" + itemId + "/comment", userId, commentDtoFromConsole);
+    }
+
+    public ResponseEntity<Object> searchJpa(Long userId, String text) {
+        Map<String, Object> parameters = Map.of(
+                "text", text
+        );
+        return get("/search?text={text}", userId, parameters);
+    }
+
+    public ResponseEntity<Object> getItemsFromUsersJpa(Long userId) {
+        return get(userId);
+    }
+
+    public ResponseEntity<Object> addItemWithRequest(Long userId, ItemDto itemDto, Long requestId) {
+        return post("/" + requestId, userId, itemDto);
     }
 }

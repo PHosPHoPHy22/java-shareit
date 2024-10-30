@@ -1,44 +1,44 @@
 package ru.practicum.shareit.user;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.validation.Marker;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import ru.practicum.shareit.user.dto.UserRequestDto;
-
-
-@Controller
+@RestController
 @RequestMapping(path = "/users")
-@RequiredArgsConstructor
-@Slf4j
 @Validated
+@RequiredArgsConstructor
 public class UserController {
     private final UserClient userClient;
 
-
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody @Valid UserRequestDto requestDto) {
-        return userClient.createUser(requestDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    @Validated(Marker.AddUser.class)
+    public ResponseEntity<Object> addUser(@RequestBody @Valid UserDto userDto) {
+        return userClient.addUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> updateUser(@RequestBody UserRequestDto requestDto,
-                                             @Positive @PathVariable Long userId) {
-        return userClient.updateUser(requestDto, userId);
+    @ResponseStatus(HttpStatus.OK)
+    @Validated(Marker.UpdateUser.class)
+    public ResponseEntity<Object> updateUser(@PathVariable("userId") long userId, @RequestBody @Valid UserDto userDto) {
+        return userClient.updateUserJpa(userId, userDto);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUser(@Positive @PathVariable Long userId) {
-        return userClient.getUser(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Object> getUserById(@PathVariable("userId") long userId) {
+        return userClient.getUserDtoByIdJpa(userId);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Object> deleteUser(@Positive @PathVariable Long userId) {
-        return userClient.deleteUser(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUserById(@PathVariable("userId") long userId) {
+        userClient.deleteUserByIdJpa(userId);
     }
 }
