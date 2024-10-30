@@ -1,39 +1,40 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.model.User;
-import java.util.Collection;
+import ru.practicum.shareit.user.dto.UserDto;
 
-
+/**
+ * TODO Sprint add-controllers.
+ */
 @RestController
 @RequestMapping(path = "/users")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserController {
-    UserService userService;
-
-    @GetMapping
-    public Collection<User> getUsers() {
-        return userService.getUsers();
-    }
+    private final UserService userService;
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
-        return userService.addUser(user);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto addUser(@RequestBody UserDto userDto) {
+        return userService.addUserJpa(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@RequestBody User user, @PathVariable("userId") Long userId) {
-        return userService.updateUser(user, userId);
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto updateUser(@PathVariable("userId") long userId, @RequestBody UserDto userDto) {
+        return userService.updateUserJpa(userId, userDto);
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable("userId") Long userId) {
-        return userService.getUser(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto getUserById(@PathVariable("userId") long userId) {
+        return userService.getUserDtoByIdJpa(userId);
     }
 
     @DeleteMapping("/{userId}")
-    public User deleteUser(@PathVariable("userId") Long userId) {
-        return userService.deleteUser(userId);
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUserById(@PathVariable("userId") long userId) {
+        userService.deleteUserByIdJpa(userId);
     }
 }
